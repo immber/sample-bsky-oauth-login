@@ -5,9 +5,22 @@
     <title>Sample Bsky Oauth Login</title>
   </head>
   <body>
-    <h1>Example of Login with Bluesky</h1>
-    <p id="login-msg">Click Login with Bluesky to start</p>
-    <button id="myButton">Login with Bluesky</button>
-  </body>
-  <script src="client.js"></script>
+    <div class="login-form">
+      <h1>Example of Login with Bluesky</h1>
+      <form action="/login" method="post">
+        <input
+          type="text"
+          name="handle"
+          placeholder="(eg immber.bsky.social)"
+          required
+        />
+        <br>
+        <label for="handle">Enter your handle to login with Bluesky</label>
+        <button type="submit">Log in</button>
+      </form>
+    </div>
+    <div class="signup-cta">
+      <p id="register-msg">Don't have an account on the Atmosphere?
+      <a href="https://bsky.app">Sign up for Bluesky</a> to create one now!</p>
+    </div>
 </html>
