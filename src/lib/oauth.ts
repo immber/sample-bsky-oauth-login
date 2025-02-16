@@ -40,7 +40,7 @@ export const newClient = (url:string) => {
 
         clientMetadata: {
             client_name: 'Sample Bsky Oauth Login',
-            client_id: `https://fake-something.com/client-metadata.json`,
+            client_id: `https://bork-me.com/client-metadata.json`,
             // client_uri: host,
             redirect_uris: [`http://127.0.0.1/oauth/callback`],
             scope: 'atproto transition:generic',
