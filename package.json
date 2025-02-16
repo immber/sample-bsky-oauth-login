@@ -8,7 +8,10 @@
   },
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
-    "express": "^4.21.2"
+    "@atproto/oauth-client-node": "^0.2.11",
+    "express": "^4.21.2",
+    "typescript": "^5.7.3"
   }
 }
