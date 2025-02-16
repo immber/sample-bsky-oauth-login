@@ -4,14 +4,23 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx watch --clear-screen=false server.ts",
+    "build": "tsup",
+    "start": "node dist/server.js"
   },
   "author": "",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
+    "@atproto/api": "^0.13.4",
     "@atproto/oauth-client-node": "^0.2.11",
     "express": "^4.21.2",
+    "typescript": "^5.7.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.0.2",
+    "tsx": "^4.7.2",
     "typescript": "^5.7.3"
   }
 }

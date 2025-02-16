@@ -1,24 +1,35 @@
 import express from 'express';
-// import { client } from './oauth.ts';
-import next from 'next';
+import { env } from './src/lib/env';
+import { newClient } from './src/lib/oauth';
+import { mongoClient } from './src/lib/mongo';
+import { Agent } from '@atproto/api';
 
+import next from 'next'; //??
+
+
+const port = env.PORT;
+const url = env.PUBLIC_URL ? env.PUBLIC_URL : env.HOST
+
+const client = newClient(url);
+console.log(client.clientMetadata);
 
 const app = express();
 
 // serve files from the public directory
-app.use(express.static('public'));
+app.use(express.static('./src/public'));
 
 // allow urlencoded payloads
 app.use(express.urlencoded({ extended: false }));
 
 // start the express web server listening on 8080
-app.listen(8080, () => {
-  console.log('listening on 8080');
+app.listen(port, () => {
+  console.log(`listening on ${port}`);
 });
 
+
 //expost endpoints for oauth metadata & jwks
-app.get('client-metadata.json', (req, res) => res.json(client.clientMetadata))
-app.get('jwks.json', (req, res) => res.json(client.jwks))
+app.get('/client-metadata.json', (req, res) => res.json(client.clientMetadata))
+// app.get('/jwks.json', (req, res) => res.json(client.jwks))
 
 // Create an endpoint to handle the OAuth callback
 app.get('/oauth/callback', async (req, res, next) => {
@@ -51,7 +62,6 @@ app.post('/login', async (req, res) => {
     const handle = req.body.handle;
     console.log(handle);
     const state = '434321' //wtf is this random ass string???
-
     try {
         const ac = new AbortController();
         req.on('close', () => ac.abort())
@@ -61,7 +71,7 @@ app.post('/login', async (req, res) => {
             signal: ac.signal,
             state
         })
-        res.redirect(url);
+        res.redirect(url.toString());
     } catch (err) {
         next(err);
     }
