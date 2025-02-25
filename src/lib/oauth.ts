@@ -7,12 +7,12 @@ import type {
   } from '@atproto/oauth-client-node';
 import { env } from './env';
 
+
 const port = env.PORT;
+const enc = encodeURIComponent
 
 export const newClient = (url:string) => {
    
-    const host = `${url}:${port}`;
-
     //used in the client, should call async db funtions
     const sessionStore: NodeSavedSessionStore = {
         async set(sub: string, sessionData: NodeSavedSession){
@@ -40,8 +40,8 @@ export const newClient = (url:string) => {
 
         clientMetadata: {
             client_name: 'Sample Bsky Oauth Login',
-            client_id: `https://bork-me.com/client-metadata.json`,
-            // client_uri: host,
+            client_id: `https://SampleBskyOauthLogin.com/client-metadata.json?redirect_uri=${enc(`http://localhost/oauth/callback`)}&scope=${enc('atproto transition:generic')}`,
+            client_uri: url,
             redirect_uris: [`http://127.0.0.1/oauth/callback`],
             scope: 'atproto transition:generic',
             grant_types: ['authorization_code', 'refresh_token'],

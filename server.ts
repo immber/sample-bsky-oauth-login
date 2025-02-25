@@ -1,19 +1,24 @@
 import express from 'express';
 import { env } from './src/lib/env';
 import { newClient } from './src/lib/oauth';
-import { mongoClient } from './src/lib/mongo';
 import { Agent } from '@atproto/api';
+import { MongoClient, MongoServerError } from 'mongodb';
+import { saveClicks } from './src/lib/db';
 
-import next from 'next'; //??
+
+
+// import next from 'next'; //??
 
 
 const port = env.PORT;
-const url = env.PUBLIC_URL ? env.PUBLIC_URL : env.HOST
+const url = env.PUBLIC_URL ? env.PUBLIC_URL : `http://localhost`;
+const connString = env.MONGO_CONN_STRING;
 
 const client = newClient(url);
-console.log(client.clientMetadata);
+// console.log(client.clientMetadata);
 
 const app = express();
+
 
 // serve files from the public directory
 app.use(express.static('./src/public'));
@@ -21,7 +26,9 @@ app.use(express.static('./src/public'));
 // allow urlencoded payloads
 app.use(express.urlencoded({ extended: false }));
 
-// start the express web server listening on 8080
+const mongoClient = await new MongoClient(connString).connect();
+
+// start the express web server listening on 8080 only if connected to db
 app.listen(port, () => {
   console.log(`listening on ${port}`);
 });
@@ -51,30 +58,42 @@ app.get('/oauth/callback', async (req, res, next) => {
   
       res.json({ ok: true })
     } catch (err) {
-      next(err)
+      // next(err)
     }
   })
 
 
 // handle login btn click
 app.post('/login', async (req, res) => {
-    console.log('Attempting login to bsky for user:')
+    console.log('login to bsky for user:')
     const handle = req.body.handle;
     console.log(handle);
     const state = '434321' //wtf is this random ass string???
+    const click = {clickTime: new Date()};
+    console.log(click);
+    console.log('do a things w/ db');
     try {
-        const ac = new AbortController();
-        req.on('close', () => ac.abort())
-
-        console.log('trying client.authorize req');
-        const url = await client.authorize(handle, {
-            signal: ac.signal,
-            state
-        })
-        res.redirect(url.toString());
+      await saveClicks(mongoClient, click);
     } catch (err) {
-        next(err);
-    }
+      if (err instanceof MongoServerError) {
+        console.log(err);
+      }
+      throw err;
+    };
+    // try {
+    //     const ac = new AbortController();
+    //     req.on('close', () => ac.abort())
+
+    //     console.log('trying client.authorize req');
+    //     const url = await client.authorize(handle, {
+    //         signal: ac.signal,
+    //         state
+    //     })
+    //     res.redirect(url.toString());
+    // } catch (err) {
+    //     // next(err);
+    // }
+    res.sendStatus(201);
 });
 
 // serve the homepage
