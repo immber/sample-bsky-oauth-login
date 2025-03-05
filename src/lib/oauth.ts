@@ -1,48 +1,27 @@
+import { MongoClient } from 'mongodb';
 import { NodeOAuthClient } from "@atproto/oauth-client-node";
-import type {
-    NodeSavedSession,
-    NodeSavedSessionStore,
-    NodeSavedState,
-    NodeSavedStateStore,
-  } from '@atproto/oauth-client-node';
+import { StateStore, SessionStore } from './db';
 import { env } from './env';
 
 
 const port = env.PORT;
 const enc = encodeURIComponent
 
-export const newClient = (url:string) => {
-   
+export const newClient = (db:MongoClient) => {
+   //try resetting the url instead of using the one passed in
+    const hostURL = env.PUBLIC_URL || `http://127.0.0.1:${port}`
+    console.log(`new client created url is: ${hostURL}`)
     //used in the client, should call async db funtions
-    const sessionStore: NodeSavedSessionStore = {
-        async set(sub: string, sessionData: NodeSavedSession){
-            console.log("you need to save the session");
-            console.log(sessionData);
-        },
-        async get(sub: string){
-            console.log("you need to retrieve the session for");
-            console.log(sub);
-        },
-        async del(sub: string){
-            console.log("you need to del this session");
-            console.log(sub);
-        }
-    }
-
-    const stateStore: NodeSavedStateStore = {
-        async set(key: string, internalState: NodeSavedState){Promise<void>},
-        async get(key: string){Promise<NodeSavedState | undefined>},
-        async del(key: string){Promise<void>}
-    }
-
+    const sessionStore = new SessionStore(db);
+    const stateStore = new StateStore(db);
 
     return new NodeOAuthClient({
 
         clientMetadata: {
-            client_name: 'Sample Bsky Oauth Login',
-            client_id: `https://SampleBskyOauthLogin.com/client-metadata.json?redirect_uri=${enc(`http://localhost/oauth/callback`)}&scope=${enc('atproto transition:generic')}`,
-            client_uri: url,
-            redirect_uris: [`http://127.0.0.1/oauth/callback`],
+            client_name: 'SampleBskyOauthLogin',
+            client_id: `http://localhost?redirect_uri=${enc(`${hostURL}/oauth/callback`)}&scope=${enc('atproto transition:generic')}`,
+            client_uri: hostURL,
+            redirect_uris: [`${hostURL}/oauth/callback`],
             scope: 'atproto transition:generic',
             grant_types: ['authorization_code', 'refresh_token'],
             response_types: ['code'],
