@@ -13,7 +13,7 @@ export class StateStore implements NodeSavedStateStore {
         const authStates = await this.db.db().collection('AuthStates');
         const result = await authStates.findOne({key: key});
         if (!result) return
-        console.log('returning state:' + result.state);
+        console.log('returning state');
         return result.state as NodeSavedState
     }
     async set(key: string, state: NodeSavedState) {
@@ -52,7 +52,7 @@ export class SessionStore implements NodeSavedSessionStore {
 
 
 //test function to ensure connection to db is good to go
-export async function saveClicks(client: MongoClient, click){
+export async function saveClicks(client: MongoClient, click:any){
     const coll = await client.db().collection('clicks');
 
     try {

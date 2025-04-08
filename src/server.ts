@@ -1,6 +1,6 @@
 import express from 'express';
-import { env } from './src/lib/env';
-import { newClient } from './src/lib/oauth';
+import { env } from './lib/env';
+import { newClient } from './lib/oauth';
 import { Agent } from '@atproto/api';
 import { MongoClient, MongoServerError } from 'mongodb';
 // import { saveClicks } from './src/lib/db';
@@ -14,7 +14,8 @@ import { isValidHandle } from '@atproto/syntax';
 const port = env.PORT;
 const connString = env.MONGO_CONN_STRING;
 
-const app = express();
+const run = async ()=> {
+  const app = express();
 
 // serve files from the public directory
 app.use(express.static('./src/public'));
@@ -43,7 +44,7 @@ app.get('/oauth/callback', async (req, res) => {
   console.log('in /oauth/callback');
     try {
       const params = new URLSearchParams(req.url.split('?')[1])
-      // console.log(params)
+      console.log(params)
       const { session } = await client.callback(params)
   
       // Process successful authentication here
@@ -55,7 +56,7 @@ app.get('/oauth/callback', async (req, res) => {
       // console.log(agent)
   
       // Make Authenticated API calls
-      const profile = await agent.getProfile({ actor: agent.did })
+      const profile = await agent.getProfile({ actor: agent.did ?? '' })
       // console.log('Bsky profile:', profile.data)
   
       return res.send("success")
@@ -94,8 +95,13 @@ app.post('/login', async (req, res) => {
         })
         console.log(loginUrl.toString());
         return res.redirect(loginUrl.toString())
-    } catch (err) {
+    } catch (err: unknown) {
+      if (err instanceof Error) {
         return res.send(err.toString())
+      } else {
+        return res.send(err);
+      }
+    
     }
 });
 
@@ -103,3 +109,8 @@ app.post('/login', async (req, res) => {
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
+
+}
+
+run();
+
