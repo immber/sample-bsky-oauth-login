@@ -3,12 +3,8 @@ import { env } from './lib/env';
 import { newClient } from './lib/oauth';
 import { Agent } from '@atproto/api';
 import { MongoClient, MongoServerError } from 'mongodb';
-// import { saveClicks } from './src/lib/db';
 import { isValidHandle } from '@atproto/syntax';
 
-
-
-// import next from 'next'; //??
 
 
 const port = env.PORT;
@@ -24,10 +20,9 @@ app.use(express.static('./src/public'));
 app.use(express.urlencoded({ extended: false }));
 
 const mongoClient = await new MongoClient(connString).connect();
-const client = newClient(mongoClient);
 // console.log(client.clientMetadata);
 
-// start the express web server listening on 8080 only if connected to db
+// start the express web server listening on PORT 
 app.listen(port, () => {
   console.log(`listening on ${port}`);
 });
@@ -35,7 +30,8 @@ app.listen(port, () => {
 
 //expost endpoints for oauth metadata & jwks
 app.get('/client-metadata.json', (req, res) => { 
-  return res.json(client.clientMetadata)
+  const authenticator = newClient(mongoClient);
+  return res.json(authenticator.client.clientMetadata)
 });
 // app.get('/jwks.json', (req, res) => res.json(client.jwks))
 
@@ -44,24 +40,26 @@ app.get('/oauth/callback', async (req, res) => {
   console.log('in /oauth/callback');
     try {
       const params = new URLSearchParams(req.url.split('?')[1])
-      console.log(params)
-      const { session } = await client.callback(params)
+      // console.log(params)
+      const authenticator = newClient(mongoClient);
+      authenticator.cookieStore.attach(req, res);
+      const { session } = await authenticator.client.callback(params);
   
       // Process successful authentication here
       // console.log('authorize() was called with state:', state)
   
       // console.log('User authenticated as:', session.did)
   
-      const agent = new Agent(session)
+      const agent = new Agent(session);
       // console.log(agent)
   
       // Make Authenticated API calls
-      const profile = await agent.getProfile({ actor: agent.did ?? '' })
+      const profile = await agent.getProfile({ actor: agent.did ?? '' });
       // console.log('Bsky profile:', profile.data)
   
-      return res.send("success")
+      return res.send("success");
     } catch (err) {
-      console.log(err)
+      console.log(err);
       return res.send('an error occured')
     }
   })
@@ -69,35 +67,25 @@ app.get('/oauth/callback', async (req, res) => {
 
 // handle login btn click
 app.post('/login', async (req, res) => {
-    console.log('login to bsky for user:')
+    // console.log('login to bsky for user:')
     const handle = req.body?.handle;
     if (typeof handle !== 'string' || !isValidHandle(handle)) {
-      console.log(`${handle} is not a valid handle`)
-      return res.send(`${handle} is not a valid handle`)
+      // console.log(`${handle} is not a valid handle`)
+      return res.send(`${handle} is not a valid handle`);
     } 
-    console.log(handle);
-    // just me testing the db, don't mind me
-    // const click = {clickTime: new Date()};
-    // console.log(click);
-    // console.log('do a things w/ db');
-    // try {
-    //   await saveClicks(mongoClient, click);
-    // } catch (err) {
-    //   if (err instanceof MongoServerError) {
-    //     console.log(err);
-    //   }
-    //   throw err;
-    // };
+    // console.log(handle);
     try {
-        console.log('trying client.authorize req');
-        const loginUrl = await client.authorize(handle, {
+        // console.log('trying client.authorize req');
+        const authenticator = newClient(mongoClient);
+        authenticator.cookieStore.attach(req, res);
+        const loginUrl = await authenticator.client.authorize(handle, {
           scope: 'atproto transition:generic',
         })
-        console.log(loginUrl.toString());
-        return res.redirect(loginUrl.toString())
+        // console.log(loginUrl.toString());
+        return res.redirect(loginUrl.toString());
     } catch (err: unknown) {
       if (err instanceof Error) {
-        return res.send(err.toString())
+        return res.send(err.toString());
       } else {
         return res.send(err);
       }

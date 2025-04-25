@@ -2,6 +2,7 @@ import { MongoClient } from 'mongodb';
 import { NodeOAuthClient } from "@atproto/oauth-client-node";
 import { StateStore, SessionStore } from './db';
 import { env } from './env';
+import { CookieStore } from "./cookies";
 
 
 const port = env.PORT;
@@ -12,11 +13,10 @@ export const newClient = (db:MongoClient) => {
     const hostURL = env.PUBLIC_URL || `http://127.0.0.1:${port}`
     console.log(`new client created url is: ${hostURL}`)
     //used in the client, should call async db funtions
+    const cookieStore = new CookieStore();
     const sessionStore = new SessionStore(db);
-    const stateStore = new StateStore(db);
-
-    return new NodeOAuthClient({
-
+    const stateStore = new StateStore(cookieStore);
+    const atprotoClient = new NodeOAuthClient({
         clientMetadata: {
             client_name: 'SampleBskyOauthLogin',
             client_id: `http://localhost?redirect_uri=${enc(`${hostURL}/oauth/callback`)}&scope=${enc('atproto transition:generic')}`,
@@ -33,5 +33,10 @@ export const newClient = (db:MongoClient) => {
         },
         stateStore:     stateStore,
         sessionStore:   sessionStore
-    })
+    });
+    return {
+        cookieStore: cookieStore,
+        client: atprotoClient
+    };
+
 }

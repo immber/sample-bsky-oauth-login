@@ -5,26 +5,23 @@ import type {
     NodeSavedState,
     NodeSavedStateStore,
   } from '@atproto/oauth-client-node';
+import { CookieStore } from "./cookies"
 
 export class StateStore implements NodeSavedStateStore {
-    constructor(private db: MongoClient) {}
+    constructor(private store: CookieStore) {}
     async get(key: string): Promise<NodeSavedState | undefined> {
-        // console.log('getting state')
-        const authStates = await this.db.db().collection('AuthStates');
-        const result = await authStates.findOne({key: key});
+        // console.log('getting state');
+        const result = await this.store.retreiveStateCookie(key)
         if (!result) return
-        console.log('returning state');
-        return result.state as NodeSavedState
+        return result as NodeSavedState
     }
     async set(key: string, state: NodeSavedState) {
         // console.log('setting state')
-        const authStates = await this.db.db().collection('AuthStates');
-        await authStates.insertOne({key: key, state: state});
+        await this.store.setStateCookie(key, state);
     }
     async del(key: string) {
         // console.log('deleting state')
-        const authStates = await this.db.db().collection('AuthStates');
-        await authStates.deleteOne({key: key});
+        await this.store.deleteCookie(key);
     }
 }
   
@@ -48,20 +45,4 @@ export class SessionStore implements NodeSavedSessionStore {
         const authSessions = await this.db.db().collection('AuthSessions');
         await authSessions.deleteOne({key: key});
     }
-}
-
-
-//test function to ensure connection to db is good to go
-export async function saveClicks(client: MongoClient, click:any){
-    const coll = await client.db().collection('clicks');
-
-    try {
-      await coll.insertOne({click});
-    } catch (err) {
-      if (err instanceof MongoServerError) {
-        console.log(err);
-      }
-      throw err;
-    };
-
 }

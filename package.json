@@ -5,9 +5,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "tsx watch --clear-screen=false server.ts",
-    "build": "tsup",
     "start": "node dist/server.js",
-    "b": "tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig.json",
     "debug": "ts-node --transpile-only ./src/server.ts"
   },
   "author": "",
@@ -16,6 +15,7 @@
     "@atproto/api": "^0.13.4",
     "@atproto/oauth-client-node": "0.2.11",
     "@atproto/syntax": "^0.3.3",
+    "cookie": "^0.4.1",
     "express": "^4.21.2",
     "mongodb": "^6.9.0",
     "typescript": "^5.7.3"
