@@ -14,7 +14,7 @@ There are about a zillion commented out `console.logs` for assistance with debug
 
 ### Additional Resources
 * This is the sample app I mentioned in the gist for my 2025 ATmosphere Lightening Talk ["Tales of Adding oAuth "Login with Bluesky" to an OS Comments Tool"](https://gist.github.com/immber/dd118b97fa3c210bcf89b9e8920883a0#stage-6-a-sample-app-working-locally). 
-* For `Bun` users, or anyone hitting `can not resolve handle` due to `fetch` errors, see https://github.com/bluesky-social/atproto/issues/3488 and https://github.com/bluesky-social/atproto/issues/3488
+* For `Bun` users, or anyone hitting `can not resolve handle` due to `fetch` errors, see https://github.com/bluesky-social/atproto/issues/3511 and https://github.com/bluesky-social/atproto/issues/3488
 
 ## TODO
 * It only works 1 time because there is no session refresh or lock, manually delete the session record from the DB to run thru the authorization flow again. 
