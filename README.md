@@ -7,7 +7,7 @@ This sample app was constructed based on the [Statusphere](https://github.com/bl
 * An `Express` app written in `Typescript`
 * Developed for `Node v18.16.0` to demo the use of [`@atproto/oauth-client-node`](https://www.npmjs.com/package/@atproto/oauth-client-node)
 * You can choose `pnpm` or `npm` to run this sample locally. It was originally started with npm, and then pnpm was added later. 
-* Uses `mongo` to store `session` and `cookies` to store state during auth flow
+* Uses `mongo` to store `session` and `cookies` to store `state` during auth flow
 
 ### Annoyingly verbose
 There are about a zillion commented out `console.logs` for assistance with debugging, and visualizing the auth flow in your terminal. 
