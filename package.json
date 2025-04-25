@@ -5,9 +5,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "tsx watch --clear-screen=false server.ts",
-    "build": "tsup",
     "start": "node dist/server.js",
-    "b": "tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig.json",
     "debug": "ts-node --transpile-only ./src/server.ts"
   },
   "author": "",
