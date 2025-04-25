@@ -24,7 +24,6 @@ app.use(express.static('./src/public'));
 app.use(express.urlencoded({ extended: false }));
 
 const mongoClient = await new MongoClient(connString).connect();
-const client = newClient(mongoClient);
 // console.log(client.clientMetadata);
 
 // start the express web server listening on 8080 only if connected to db
@@ -35,7 +34,8 @@ app.listen(port, () => {
 
 //expost endpoints for oauth metadata & jwks
 app.get('/client-metadata.json', (req, res) => { 
-  return res.json(client.clientMetadata)
+  const authenticator = newClient(mongoClient);
+  return res.json(authenticator.client.clientMetadata)
 });
 // app.get('/jwks.json', (req, res) => res.json(client.jwks))
 
@@ -45,7 +45,9 @@ app.get('/oauth/callback', async (req, res) => {
     try {
       const params = new URLSearchParams(req.url.split('?')[1])
       console.log(params)
-      const { session } = await client.callback(params)
+      const authenticator = newClient(mongoClient);
+      authenticator.cookieStore.attach(req, res);
+      const { session } = await authenticator.client.callback(params)
   
       // Process successful authentication here
       // console.log('authorize() was called with state:', state)
@@ -90,7 +92,9 @@ app.post('/login', async (req, res) => {
     // };
     try {
         console.log('trying client.authorize req');
-        const loginUrl = await client.authorize(handle, {
+        const authenticator = newClient(mongoClient);
+        authenticator.cookieStore.attach(req, res);
+        const loginUrl = await authenticator.client.authorize(handle, {
           scope: 'atproto transition:generic',
         })
         console.log(loginUrl.toString());
