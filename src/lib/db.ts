@@ -10,18 +10,17 @@ import { CookieStore } from "./cookies"
 export class StateStore implements NodeSavedStateStore {
     constructor(private store: CookieStore) {}
     async get(key: string): Promise<NodeSavedState | undefined> {
-        console.log('getting state');
+        // console.log('getting state');
         const result = await this.store.retreiveStateCookie(key)
         if (!result) return
-        console.log('returning state');
         return result as NodeSavedState
     }
     async set(key: string, state: NodeSavedState) {
-        console.log('setting state')
+        // console.log('setting state')
         await this.store.setStateCookie(key, state);
     }
     async del(key: string) {
-        console.log('deleting state')
+        // console.log('deleting state')
         await this.store.deleteCookie(key);
     }
 }
@@ -46,20 +45,4 @@ export class SessionStore implements NodeSavedSessionStore {
         const authSessions = await this.db.db().collection('AuthSessions');
         await authSessions.deleteOne({key: key});
     }
-}
-
-
-//test function to ensure connection to db is good to go
-export async function saveClicks(client: MongoClient, click:any){
-    const coll = await client.db().collection('clicks');
-
-    try {
-      await coll.insertOne({click});
-    } catch (err) {
-      if (err instanceof MongoServerError) {
-        console.log(err);
-      }
-      throw err;
-    };
-
 }
